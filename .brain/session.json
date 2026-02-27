@@ -1,47 +1,31 @@
 {
-    "updated_at": "2026-02-27T21:51:00+07:00",
+    "updated_at": "2026-02-28T00:20:00Z",
     "working_on": {
-        "feature": "Medical Assistant MVP",
-        "status": "running",
-        "phase": "Phase 07",
-        "next_steps": [
-            "Kiểm thử thực tế với tập dữ liệu y khoa lớn hơn",
-            "Triển khai RAG với dữ liệu chuyên khoa sâu",
-            "Xây dựng tính năng PDF Export cho hồ sơ khám"
+        "feature": "Cloud Deployment",
+        "phase": "Phase 10",
+        "status": "80% Complete",
+        "recent_tasks": [
+            "Production build test passed",
+            "API parameter typing fix for Next.js 15",
+            "Cleanup of legacy/debug APIs",
+            "Navigation refactor (Root Dashboard)",
+            "README.md updated for Open Source release"
+        ],
+        "remaining_tasks": [
+            "Vercel environment variables configuration",
+            "Supabase Cloud database migration",
+            "Final verification on production URL"
         ]
     },
-    "recent_changes": [
-        {
-            "type": "AI Pipeline",
-            "desc": "Nâng cấp STT với khả năng phân vai và sửa lỗi thuật ngữ y tế."
-        },
-        {
-            "type": "Analysis",
-            "desc": "Chuyển sang hệ thống đa tác nhân cho SOAP/ICD/Advice."
-        },
-        {
-            "type": "Dashboard",
-            "desc": "Tích hợp API thống kê thực tế cho số lượng ca khám và độ khớp AI."
-        }
-    ],
     "decisions_made": [
         {
-            "decision": "Structured Transcript",
-            "reason": "Hiển thị hội thoại dạng chat giúp bác sĩ dễ dàng rà soát bối cảnh."
+            "decision": "Skip Phase 09 (Final Testing)",
+            "reason": "User priority for immediate MVP launch"
+        },
+        {
+            "decision": "Refactor '/' to Dashboard",
+            "reason": "Optimize doctor workflow efficiency"
         }
     ],
-    "errors_resolved": [
-        {
-            "error": "Database connection string",
-            "reason": "Cần sử dụng POSTGRES_URL thay vì Supabase anon keys cho pg client."
-        },
-        {
-            "error": "Booking creation fails with 500",
-            "reason": "Thiếu các trường bắt buộc (patient_name, patient_phone) trong bảng bookings."
-        },
-        {
-            "error": "Medical records save fails with 500",
-            "reason": "Bảng comparison_records yêu cầu trường 'comparison' không được null."
-        }
-    ]
+    "plan_path": "plans/260227-1407-medical-assistant-mvp/plan.md"
 }

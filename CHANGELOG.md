@@ -1,5 +1,19 @@
 # Changelog - Senlyzer Medical Assistant
 
+## [2026-02-28] - Pre-deployment & Cleanup
+### Added
+- **README.md**: Biên soạn lại toàn bộ tài liệu hướng dẫn Open Source.
+- **Audit System**: Thực hiện Quick Scan bảo mật trước khi deploy.
+
+### Changed
+- **Navigation Refactor**: Chuyển Dashboard làm trang chủ (Routing `/`).
+- **Production Optimization**: Sửa lỗi Type params của API Routes cho Next.js 15.
+- **Build Success**: Xác nhận build thành công bản Production local.
+
+### Removed
+- **Legacy APIs**: Xóa bỏ các API nháp (`/api/visits`, `/api/debug`) để bảo mật.
+- **Logs**: Dọn dẹp các tệp log build dư thừa.
+
 ## [2026-02-27] - Hoàn thiện MVP+ Multi-agent
 ### Added
 - **Multi-Agent AI Analysis**: Hệ thống phân tích SOAP, ICD-10 và Lời khuyên y tế với 3 Agent chuyên biệt.

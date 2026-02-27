@@ -1,27 +1,23 @@
 {
+  "meta": {
+    "schema_version": "1.1.0",
+    "awf_version": "4.0.2"
+  },
   "project": {
-    "name": "Senlyzer Medical Assistant",
-    "description": "Nền tảng trợ lý y tế đa tác nhân: Ghi âm -> STT Phân vai -> Phân tích SOAP Multi-agent -> Matching Engine -> Analytics Dashboard.",
-    "status": "Complete (MVP+)",
-    "updated_at": "2026-02-27T21:35:00+07:00"
+    "name": "Senlyzer - AI Medical Examination Assistant",
+    "type": "Next.js Medical Platform",
+    "status": "MVP - Pre-deployment"
   },
   "tech_stack": {
-    "frontend_backend": "Next.js 15+ (Turbopack)",
-    "database": "Supabase (PostgreSQL) kết nối qua @pg",
-    "stt": "Whisper Large v3 (Groq) + Llama 3.3-70B Role Detection",
-    "nlp_analysis": "Multi-agent System (Scribe, ICD, Expert) via Llama/Gemini",
-    "embeddings": "Text-embedding-004 (Google AI Studio)",
-    "ui_components": "TailwindCSS, Lucide React, Framer Motion"
+    "frontend": "Next.js 15, Tailwind CSS, Framer Motion",
+    "api_runtime": "Next.js API Routes (Serverless)",
+    "ai_services": {
+      "stt": "Groq Whisper-large-v3",
+      "llm": "Groq Llama-3.3-70b-versatile",
+      "embeddings": "Google Vertex AI / Generative Language API"
+    },
+    "database": "PostgreSQL (pg pool)"
   },
-  "features": [
-    "📍 Dashboard Bác sĩ với chỉ số Analytics real-time.",
-    "🎙️ Ghi âm hội thoại y tế với sóng âm trực quan.",
-    "🛡️ Phân biệt vai trò Bác sĩ/Bệnh nhân trong hội thoại.",
-    "🩺 Tự động hóa ghi chú SOAP và gán mã ICD-10.",
-    "💡 Gợi ý y khoa & Đánh giá rủi ro từ Chuyên gia AI.",
-    "⚖️ Matching Engine: So sánh độ khớp vector giữa ý kiến BS và AI (Cosine Similarity).",
-    "💾 Lưu trữ hồ sơ y tế tập trung vào PostgreSQL."
-  ],
   "api_endpoints": [
     {
       "path": "/api/patients",
@@ -29,48 +25,50 @@
       "desc": "Lấy danh sách bệnh nhân"
     },
     {
-      "path": "/api/ai/stt",
-      "method": "POST",
-      "desc": "Chuyển âm thanh thành văn bản + Phân vai"
+      "path": "/api/patients/[id]",
+      "method": "GET",
+      "desc": "Thông tin chi tiết bệnh nhân"
     },
     {
-      "path": "/api/ai/analyze",
-      "method": "POST",
-      "desc": "Phân tích Multi-agent (SOAP, ICD, Advice)"
-    },
-    {
-      "path": "/api/ai/embed",
-      "method": "POST",
-      "desc": "Tạo vector cho văn bản"
+      "path": "/api/patients/[id]/history",
+      "method": "GET",
+      "desc": "Lịch sử bệnh án của bệnh nhân"
     },
     {
       "path": "/api/bookings",
       "method": "POST",
-      "desc": "Khởi tạo phiên khám mới"
+      "desc": "Tạo phiên khám mới"
     },
     {
       "path": "/api/medical-records",
       "method": "POST",
-      "desc": "Lưu kết quả khám & Đối soát"
+      "desc": "Lưu kết quả SOAP và so sánh AI"
+    },
+    {
+      "path": "/api/ai/stt",
+      "method": "POST",
+      "desc": "Chuyển giọng nói thành văn bản"
+    },
+    {
+      "path": "/api/ai/analyze",
+      "method": "POST",
+      "desc": "Phân tích SOAP Multi-agent (Scribe, ICD, Protocol agents)"
+    },
+    {
+      "path": "/api/ai/embed",
+      "method": "POST",
+      "desc": "Tạo vector embedding cho so sánh"
     },
     {
       "path": "/api/dashboard/stats",
       "method": "GET",
-      "desc": "Lấy số liệu thống kê Dashboard"
+      "desc": "Thống kê dashboard"
     }
   ],
-  "decisions": [
-    {
-      "decision": "Dùng POSTGRES_URL",
-      "reason": "Sử dụng kết nối PostgreSQL trực tiếp thay vì Supabase SDK để tối ưu query"
-    },
-    {
-      "decision": "Multi-agent Prompting",
-      "reason": "Tách vai trò AI giúp tăng độ chính xác của SOAP và ICD-10"
-    },
-    {
-      "decision": "Cosine Similarity",
-      "reason": "Đo lường định lượng mức độ tin cậy của AI so với thực tế lâm sàng"
-    }
+  "patterns": [
+    "Multi-agent AI pipeline for specialized medical tasks",
+    "RAG (Retrieval-Augmented Generation) for medical protocols",
+    "Cosine similarity comparison for AI vs Human diagnosis",
+    "Root-level dashboard navigation for medical workflow efficiency"
   ]
 }
