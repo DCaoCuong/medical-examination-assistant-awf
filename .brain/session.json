@@ -1,0 +1,39 @@
+{
+    "updated_at": "2026-02-27T21:45:00+07:00",
+    "working_on": {
+        "feature": "Medical Assistant MVP",
+        "status": "Awaiting Final Testing",
+        "phase": "Phase 09",
+        "next_steps": [
+            "Kiểm thử thực tế với tập dữ liệu y khoa lớn hơn",
+            "Triển khai RAG với dữ liệu chuyên khoa sâu",
+            "Xây dựng tính năng PDF Export cho hồ sơ khám"
+        ]
+    },
+    "recent_changes": [
+        {
+            "type": "AI Pipeline",
+            "desc": "Nâng cấp STT với khả năng phân vai và sửa lỗi thuật ngữ y tế."
+        },
+        {
+            "type": "Analysis",
+            "desc": "Chuyển sang hệ thống đa tác nhân cho SOAP/ICD/Advice."
+        },
+        {
+            "type": "Dashboard",
+            "desc": "Tích hợp API thống kê thực tế cho số lượng ca khám và độ khớp AI."
+        }
+    ],
+    "decisions_made": [
+        {
+            "decision": "Structured Transcript",
+            "reason": "Hiển thị hội thoại dạng chat giúp bác sĩ dễ dàng rà soát bối cảnh."
+        }
+    ],
+    "errors_resolved": [
+        {
+            "error": "Database connection string",
+            "reason": "Cần sử dụng POSTGRES_URL thay vì Supabase anon keys cho pg client."
+        }
+    ]
+}

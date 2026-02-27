@@ -4,18 +4,26 @@ import { useEffect, useState } from 'react';
 import { patientService, Patient } from '@/services/patientService';
 import { Database, User, Activity, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
+import axios from 'axios';
+import { formatAsPercentage } from '@/utils/math';
 
 export default function DashboardPage() {
     const [patients, setPatients] = useState<Patient[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
+    const [stats, setStats] = useState({ totalPatients: 0, todaySessions: 0, avgMatchScore: 0 });
+
     useEffect(() => {
         async function loadData() {
             try {
                 setLoading(true);
-                const data = await patientService.getAllPatients();
-                setPatients(data);
+                const [patientsData, statsRes] = await Promise.all([
+                    patientService.getAllPatients(),
+                    axios.get('/api/dashboard/stats')
+                ]);
+                setPatients(patientsData);
+                setStats(statsRes.data);
                 setError(null);
             } catch (err: any) {
                 console.error('Failed to fetch patients:', err);
@@ -52,9 +60,9 @@ export default function DashboardPage() {
                 )}
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <StatCard title="Tổng bệnh nhân" value={patients.length.toString()} icon={<User className="text-blue-500" />} />
-                    <StatCard title="Phiên khám hôm nay" value="0" icon={<Activity className="text-green-500" />} />
-                    <StatCard title="Độ chính xác AI (trung bình)" value="-- %" icon={<AlertCircle className="text-orange-500" />} />
+                    <StatCard title="Tổng bệnh nhân" value={stats.totalPatients.toString()} icon={<User className="text-blue-500" />} />
+                    <StatCard title="Phiên khám hôm nay" value={stats.todaySessions.toString()} icon={<Activity className="text-green-500" />} />
+                    <StatCard title="Độ khớp AI (với BS)" value={stats.avgMatchScore > 0 ? formatAsPercentage(stats.avgMatchScore) : "-- %"} icon={<AlertCircle className="text-orange-500" />} />
                 </div>
 
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">

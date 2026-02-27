@@ -1,16 +1,76 @@
 {
   "project": {
-    "name": "medical-examination-assistant-awf",
-    "description": "Một nền tảng ứng dụng web hỗ trợ bác sĩ ghi âm cuộc hội thoại, tự động chuyển thành văn bản, phân tích ghi chú theo chuẩn SOAP, gợi ý mã ICD-10 và phác đồ điều trị.",
-    "created_at": "2026-02-27T13:54:00+07:00"
+    "name": "Senlyzer Medical Assistant",
+    "description": "Nền tảng trợ lý y tế đa tác nhân: Ghi âm -> STT Phân vai -> Phân tích SOAP Multi-agent -> Matching Engine -> Analytics Dashboard.",
+    "status": "Complete (MVP+)",
+    "updated_at": "2026-02-27T21:35:00+07:00"
   },
-  "tech_stack": [
-    "Next.js",
-    "TailwindCSS",
-    "Supabase",
-    "Groq API (Whisper Large v3, Llama/OSS models)",
-    "Google AI Studio (Text-embedding-004)"
+  "tech_stack": {
+    "frontend_backend": "Next.js 15+ (Turbopack)",
+    "database": "Supabase (PostgreSQL) kết nối qua @pg",
+    "stt": "Whisper Large v3 (Groq) + Llama 3.3-70B Role Detection",
+    "nlp_analysis": "Multi-agent System (Scribe, ICD, Expert) via Llama/Gemini",
+    "embeddings": "Text-embedding-004 (Google AI Studio)",
+    "ui_components": "TailwindCSS, Lucide React, Framer Motion"
+  },
+  "features": [
+    "📍 Dashboard Bác sĩ với chỉ số Analytics real-time.",
+    "🎙️ Ghi âm hội thoại y tế với sóng âm trực quan.",
+    "🛡️ Phân biệt vai trò Bác sĩ/Bệnh nhân trong hội thoại.",
+    "🩺 Tự động hóa ghi chú SOAP và gán mã ICD-10.",
+    "💡 Gợi ý y khoa & Đánh giá rủi ro từ Chuyên gia AI.",
+    "⚖️ Matching Engine: So sánh độ khớp vector giữa ý kiến BS và AI (Cosine Similarity).",
+    "💾 Lưu trữ hồ sơ y tế tập trung vào PostgreSQL."
   ],
-  "features": [],
-  "decisions": []
+  "api_endpoints": [
+    {
+      "path": "/api/patients",
+      "method": "GET",
+      "desc": "Lấy danh sách bệnh nhân"
+    },
+    {
+      "path": "/api/ai/stt",
+      "method": "POST",
+      "desc": "Chuyển âm thanh thành văn bản + Phân vai"
+    },
+    {
+      "path": "/api/ai/analyze",
+      "method": "POST",
+      "desc": "Phân tích Multi-agent (SOAP, ICD, Advice)"
+    },
+    {
+      "path": "/api/ai/embed",
+      "method": "POST",
+      "desc": "Tạo vector cho văn bản"
+    },
+    {
+      "path": "/api/bookings",
+      "method": "POST",
+      "desc": "Khởi tạo phiên khám mới"
+    },
+    {
+      "path": "/api/medical-records",
+      "method": "POST",
+      "desc": "Lưu kết quả khám & Đối soát"
+    },
+    {
+      "path": "/api/dashboard/stats",
+      "method": "GET",
+      "desc": "Lấy số liệu thống kê Dashboard"
+    }
+  ],
+  "decisions": [
+    {
+      "decision": "Dùng POSTGRES_URL",
+      "reason": "Sử dụng kết nối PostgreSQL trực tiếp thay vì Supabase SDK để tối ưu query"
+    },
+    {
+      "decision": "Multi-agent Prompting",
+      "reason": "Tách vai trò AI giúp tăng độ chính xác của SOAP và ICD-10"
+    },
+    {
+      "decision": "Cosine Similarity",
+      "reason": "Đo lường định lượng mức độ tin cậy của AI so với thực tế lâm sàng"
+    }
+  ]
 }

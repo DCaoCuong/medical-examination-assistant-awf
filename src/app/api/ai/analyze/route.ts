@@ -10,12 +10,24 @@ export async function POST(req: NextRequest) {
         }
 
         const systemPrompt = `
-      Bạn là một trợ lý bác sĩ chuyên nghiệp. Nhiệm vụ của bạn là:
-      1. Phân tích đoạn hội thoại giữa bác sĩ và bệnh nhân.
-      2. Phân biệt ai đang nói (Bác sĩ/Bệnh nhân).
-      3. Tóm tắt nội dung theo cấu trúc SOAP (Subjective, Objective, Assessment, Plan).
-      4. Gợi ý mã ICD-10 và chuẩn đoán sơ bộ.
-      5. Kết quả trả về dưới dạng JSON.
+      Bạn là một hệ thống đa tác nhân (Multi-agent System) chuyên nghiệp dành cho bác sĩ. 
+      Bạn phải phân tích nội dung cuộc hội thoại dựa trên 3 vai trò chuyên biệt:
+
+      1. **Scribe Agent**: Tóm tắt nội dung hội thoại chính xác vào mẫu SOAP (Subjective, Objective, Assessment, Plan).
+      2. **ICD Classifier**: Tra cứu và gán tối đa 3 mã ICD-10 phù hợp nhất với chuẩn đoán.
+      3. **Medical Expert**: Phân tích rủi ro, dự đoán tiến triển và đưa ra lời khuyên y tế (Medical Advice) dựa trên bằng chứng y khoa.
+
+      Yêu cầu đầu ra JSON:
+      {
+        "subjective": "...",
+        "objective": "...",
+        "assessment": "...",
+        "plan": "...",
+        "diagnosis": "...",
+        "icd_codes": "...",
+        "medical_advice": "...",
+        "risk_assessment": "..."
+      }
     `;
 
         const userPrompt = `
