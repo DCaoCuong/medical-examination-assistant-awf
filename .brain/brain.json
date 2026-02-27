@@ -1,0 +1,16 @@
+{
+  "project": {
+    "name": "medical-examination-assistant-awf",
+    "description": "Một nền tảng ứng dụng web hỗ trợ bác sĩ ghi âm cuộc hội thoại, tự động chuyển thành văn bản, phân tích ghi chú theo chuẩn SOAP, gợi ý mã ICD-10 và phác đồ điều trị.",
+    "created_at": "2026-02-27T13:54:00+07:00"
+  },
+  "tech_stack": [
+    "Next.js",
+    "TailwindCSS",
+    "Supabase",
+    "Groq API (Whisper Large v3, Llama/OSS models)",
+    "Google AI Studio (Text-embedding-004)"
+  ],
+  "features": [],
+  "decisions": []
+}
