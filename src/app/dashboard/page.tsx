@@ -102,10 +102,16 @@ export default function DashboardPage() {
                                                 {patient.birth_date ? new Date(patient.birth_date).toLocaleDateString('vi-VN') : 'N/A'}
                                             </td>
                                             <td className="px-6 py-4 text-sm text-gray-600">{patient.phone || 'N/A'}</td>
-                                            <td className="px-6 py-4">
+                                            <td className="px-6 py-4 flex gap-2">
+                                                <Link
+                                                    href={`/dashboard/patients/${patient.id}`}
+                                                    className="px-3 py-1.5 bg-gray-100 text-gray-700 text-xs font-semibold rounded-lg hover:bg-gray-200 transition-colors inline-block"
+                                                >
+                                                    Hồ sơ
+                                                </Link>
                                                 <Link
                                                     href={`/dashboard/examination/${patient.id}`}
-                                                    className="px-4 py-1.5 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700 transition-colors inline-block"
+                                                    className="px-3 py-1.5 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700 transition-colors inline-block"
                                                 >
                                                     Kí khám
                                                 </Link>

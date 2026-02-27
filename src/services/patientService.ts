@@ -73,5 +73,13 @@ export const patientService = {
     async saveMedicalRecord(record: Partial<MedicalRecord>) {
         const response = await axios.post('/api/medical-records', record);
         return response.data;
+    },
+
+    /**
+     * Lấy toàn bộ lịch sử bệnh án (medical_records) của bệnh nhân
+     */
+    async getPatientHistory(userId: string) {
+        const response = await axios.get(`/api/patients/${userId}/history`);
+        return response.data as (MedicalRecord & { booking_time: string })[];
     }
 };

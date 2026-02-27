@@ -1,9 +1,9 @@
 {
-    "updated_at": "2026-02-27T21:45:00+07:00",
+    "updated_at": "2026-02-27T21:51:00+07:00",
     "working_on": {
         "feature": "Medical Assistant MVP",
-        "status": "Awaiting Final Testing",
-        "phase": "Phase 09",
+        "status": "running",
+        "phase": "Phase 07",
         "next_steps": [
             "Kiểm thử thực tế với tập dữ liệu y khoa lớn hơn",
             "Triển khai RAG với dữ liệu chuyên khoa sâu",
@@ -34,6 +34,14 @@
         {
             "error": "Database connection string",
             "reason": "Cần sử dụng POSTGRES_URL thay vì Supabase anon keys cho pg client."
+        },
+        {
+            "error": "Booking creation fails with 500",
+            "reason": "Thiếu các trường bắt buộc (patient_name, patient_phone) trong bảng bookings."
+        },
+        {
+            "error": "Medical records save fails with 500",
+            "reason": "Bảng comparison_records yêu cầu trường 'comparison' không được null."
         }
     ]
 }

@@ -27,7 +27,7 @@ export default function ExaminationPage({ params }: { params: Promise<{ id: stri
     const [patient, setPatient] = useState<Patient | null>(null);
     const [loading, setLoading] = useState(true);
     const [isProcessing, setIsProcessing] = useState(false);
-    const [processingStatus, setProcessingStatus] = useState<string>('');
+    const [processingStatus, setProcessingStatus] = useState<number>(0); // 0: Idle, 1: STT, 2: Role/Fix, 3: Analysis, 4: Done
     const [transcript, setTranscript] = useState<string>('');
     const [transcriptSegments, setTranscriptSegments] = useState<{ role: string, text: string }[]>([]);
     const [analysis, setAnalysis] = useState<any>(null);
@@ -57,7 +57,11 @@ export default function ExaminationPage({ params }: { params: Promise<{ id: stri
                 setPatient(patientData);
 
                 // 2. Create a session (booking)
-                const bookingResponse = await axios.post('/api/bookings', { user_id: id });
+                const bookingResponse = await axios.post('/api/bookings', {
+                    user_id: id,
+                    patient_name: patientData.name,
+                    patient_phone: patientData.phone
+                });
                 setBookingId(bookingResponse.data.id);
             } catch (err) {
                 console.error('Initialization failed:', err);
@@ -71,13 +75,14 @@ export default function ExaminationPage({ params }: { params: Promise<{ id: stri
     const handleRecordingComplete = async (blob: Blob) => {
         try {
             setIsProcessing(true);
-            setProcessingStatus('🎙️ Đang chuyển đổi giọng nói (STT)...');
+            setProcessingStatus(1);
 
-            // 1. Gửi file lên STT API
             const formData = new FormData();
             formData.append('file', blob, 'recording.webm');
 
             const sttResponse = await axios.post('/api/ai/stt', formData);
+
+            setProcessingStatus(2);
             const text = sttResponse.data.text;
             const segments = sttResponse.data.segments || [];
 
@@ -85,7 +90,7 @@ export default function ExaminationPage({ params }: { params: Promise<{ id: stri
             setTranscriptSegments(segments);
 
             // 2. Gửi transcript lên NLP Analysis
-            setProcessingStatus('🩺 Đang phân tích hồ sơ y tế (NLP)...');
+            setProcessingStatus(3);
             const analysisResponse = await axios.post('/api/ai/analyze', {
                 transcript: text,
                 context: `Bệnh nhân: ${patient?.name}, Tiền sử: ${patient?.medical_history || 'Không'}`
@@ -118,8 +123,10 @@ export default function ExaminationPage({ params }: { params: Promise<{ id: stri
             });
 
             setStep(2);
+            setProcessingStatus(4);
         } catch (err) {
             console.error('Processing failed:', err);
+            setProcessingStatus(0);
             alert('Có lỗi xảy ra trong quá trình xử lý AI.');
         } finally {
             setIsProcessing(false);
@@ -127,10 +134,30 @@ export default function ExaminationPage({ params }: { params: Promise<{ id: stri
     };
 
     const calculateSimilarity = async () => {
+        if (!analysis || !soap) return;
         try {
             setIsProcessing(true);
-            const aiText = `${analysis.subjective} ${analysis.objective} ${analysis.assessment} ${analysis.plan} ${analysis.diagnosis}`;
-            const doctorText = `${soap.subjective} ${soap.objective} ${soap.assessment} ${soap.plan} ${soap.diagnosis}`;
+
+            const aiText = [
+                analysis.subjective,
+                analysis.objective,
+                analysis.assessment,
+                analysis.plan,
+                analysis.diagnosis
+            ].filter(Boolean).join(' ');
+
+            const doctorText = [
+                soap.subjective,
+                soap.objective,
+                soap.assessment,
+                soap.plan,
+                soap.diagnosis
+            ].filter(Boolean).join(' ');
+
+            if (!aiText || !doctorText) {
+                console.warn('Empty text for similarity calculation');
+                return;
+            }
 
             const [aiEmbed, docEmbed] = await Promise.all([
                 axios.post('/api/ai/embed', { text: aiText }),
@@ -157,7 +184,7 @@ export default function ExaminationPage({ params }: { params: Promise<{ id: stri
                 match_score: matchScore || 0
             });
             alert('Lưu hồ sơ bệnh án thành công!');
-            window.location.href = '/dashboard';
+            window.location.href = `/dashboard/patients/${id}`;
         } catch (err) {
             console.error('Save failed:', err);
             alert('Lưu hồ sơ thất bại.');
@@ -264,11 +291,21 @@ export default function ExaminationPage({ params }: { params: Promise<{ id: stri
                                         <AudioRecorder onComplete={handleRecordingComplete} isProcessing={isProcessing} />
 
                                         {isProcessing && (
-                                            <div className="mt-8 flex flex-col items-center gap-2">
-                                                <Loader2 className="animate-spin text-blue-600" size={24} />
-                                                <p className="text-sm font-medium text-blue-600 animate-pulse">
-                                                    {processingStatus}
-                                                </p>
+                                            <div className="mt-10 w-full max-w-md">
+                                                <div className="flex justify-between mb-2">
+                                                    <StatusStep icon={<Mic size={14} />} label="STT" active={processingStatus >= 1} current={processingStatus === 1} />
+                                                    <div className={`flex-1 h-[2px] mt-4 mx-2 ${processingStatus > 1 ? 'bg-blue-600' : 'bg-gray-100'}`} />
+                                                    <StatusStep icon={<User size={14} />} label="Phân vai" active={processingStatus >= 2} current={processingStatus === 2} />
+                                                    <div className={`flex-1 h-[2px] mt-4 mx-2 ${processingStatus > 2 ? 'bg-blue-600' : 'bg-gray-100'}`} />
+                                                    <StatusStep icon={<Sparkles size={14} />} label="Phân tích" active={processingStatus >= 3} current={processingStatus === 3} />
+                                                </div>
+                                                <div className="text-center mt-6">
+                                                    <p className="text-sm font-medium text-blue-600 animate-pulse">
+                                                        {processingStatus === 1 && 'Đang chuyển giọng nói thành văn bản...'}
+                                                        {processingStatus === 2 && 'Đang phân tích vai trò & sửa lỗi y tế...'}
+                                                        {processingStatus === 3 && 'Đang tổng hợp hồ sơ SOAP...'}
+                                                    </p>
+                                                </div>
                                             </div>
                                         )}
                                     </div>
@@ -301,59 +338,103 @@ export default function ExaminationPage({ params }: { params: Promise<{ id: stri
                                             </div>
                                         </div>
 
-                                        <div className="space-y-6">
+                                        <div className="space-y-8">
                                             <section>
                                                 <h3 className="text-xs font-bold text-gray-400 uppercase mb-3">Hội thoại chi tiết (Transcript)</h3>
-                                                <div className="max-h-64 overflow-y-auto p-4 bg-gray-50 rounded-2xl border border-gray-100 space-y-3">
+                                                <div className="max-h-60 overflow-y-auto p-4 bg-gray-50/50 rounded-2xl border border-gray-100 space-y-4">
                                                     {transcriptSegments.length > 0 ? (
                                                         transcriptSegments.map((s, i) => (
-                                                            <div key={i} className={`flex ${s.role === 'doctor' ? 'justify-end' : 'justify-start'}`}>
-                                                                <div className={`max-w-[80%] p-3 rounded-2xl text-sm ${s.role === 'doctor'
-                                                                    ? 'bg-blue-600 text-white rounded-tr-none'
-                                                                    : 'bg-white border border-gray-100 text-gray-700 rounded-tl-none shadow-sm'
+                                                            <div key={i} className={`flex gap-3 ${s.role === 'doctor' ? 'flex-row-reverse' : 'flex-row'}`}>
+                                                                <div className={`w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-[10px] font-bold ${s.role === 'doctor' ? 'bg-blue-100 text-blue-600' : 'bg-gray-200 text-gray-600'
                                                                     }`}>
-                                                                    <p className="font-bold text-[10px] uppercase mb-1 opacity-70">
+                                                                    {s.role === 'doctor' ? <User size={14} /> : <User size={14} className="opacity-50" />}
+                                                                </div>
+                                                                <div className={`max-w-[80%] p-3 rounded-2xl text-sm shadow-sm ${s.role === 'doctor'
+                                                                    ? 'bg-blue-600 text-white rounded-tr-none'
+                                                                    : 'bg-white border border-gray-100 text-gray-700 rounded-tl-none'
+                                                                    }`}>
+                                                                    <p className="font-bold text-[9px] uppercase mb-1 opacity-70 tracking-wider">
                                                                         {s.role === 'doctor' ? 'Bác sĩ' : 'Bệnh nhân'}
                                                                     </p>
-                                                                    <p>{s.text}</p>
+                                                                    <p className="leading-relaxed">{s.text}</p>
                                                                 </div>
                                                             </div>
                                                         ))
                                                     ) : (
-                                                        <p className="text-sm text-gray-400 italic">"{transcript}"</p>
+                                                        <p className="text-sm text-gray-400 italic text-center py-4">"{transcript}"</p>
                                                     )}
                                                 </div>
                                             </section>
 
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                <SoapEditor title="S - Subjective (Chủ quan)" value={soap.subjective} onChange={(v) => setSoap({ ...soap, subjective: v })} />
-                                                <SoapEditor title="O - Objective (Khách quan)" value={soap.objective} onChange={(v) => setSoap({ ...soap, objective: v })} />
-                                                <SoapEditor title="A - Assessment (Đánh giá)" value={soap.assessment} onChange={(v) => setSoap({ ...soap, assessment: v })} />
-                                                <SoapEditor title="P - Plan (Kế hoạch)" value={soap.plan} onChange={(v) => setSoap({ ...soap, plan: v })} />
-                                            </div>
+                                            {/* AI Suggestion Section (Read-only) */}
+                                            {analysis && (
+                                                <section className="p-6 bg-blue-50/30 rounded-2xl border border-blue-100/50">
+                                                    <div className="flex items-center gap-2 mb-4">
+                                                        <div className="p-1.5 bg-blue-600 text-white rounded-lg">
+                                                            <Sparkles size={14} />
+                                                        </div>
+                                                        <h3 className="text-sm font-bold text-blue-900">BẢN TÓM TẮT GỢI Ý (AI)</h3>
+                                                    </div>
 
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                <div>
-                                                    <h3 className="text-xs font-bold text-gray-400 uppercase mb-2">Chuẩn đoán chính</h3>
-                                                    <input
-                                                        type="text"
-                                                        value={soap.diagnosis}
-                                                        onChange={(e) => setSoap({ ...soap, diagnosis: e.target.value })}
-                                                        className="w-full p-3 bg-gray-50 border border-gray-100 rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-100"
-                                                        placeholder="Nhập chuẩn đoán..."
-                                                    />
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                                        <ReadOnlySoap title="S - Subjective" value={analysis.subjective || analysis.S} />
+                                                        <ReadOnlySoap title="O - Objective" value={analysis.objective || analysis.O} />
+                                                        <ReadOnlySoap title="A - Assessment" value={analysis.assessment || analysis.A} />
+                                                        <ReadOnlySoap title="P - Plan" value={analysis.plan || analysis.P} />
+                                                    </div>
+
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                        <div className="p-3 bg-white/50 rounded-xl border border-blue-100">
+                                                            <h4 className="text-[10px] font-bold text-blue-400 uppercase mb-1">Chuẩn đoán gợi ý</h4>
+                                                            <p className="text-sm text-blue-800 font-medium">{analysis.diagnosis || 'N/A'}</p>
+                                                        </div>
+                                                        <div className="p-3 bg-white/50 rounded-xl border border-blue-100">
+                                                            <h4 className="text-[10px] font-bold text-blue-400 uppercase mb-1">Mã ICD-10 dự kiến</h4>
+                                                            <p className="text-sm text-blue-800 font-mono">{analysis.icd_codes || 'N/A'}</p>
+                                                        </div>
+                                                    </div>
+                                                </section>
+                                            )}
+
+                                            {/* Doctor Conclusion Section (Editable) */}
+                                            <section className="pt-4 border-t border-dashed border-gray-200">
+                                                <div className="flex items-center gap-2 mb-6">
+                                                    <div className="p-1.5 bg-gray-900 text-white rounded-lg">
+                                                        <User size={14} />
+                                                    </div>
+                                                    <h3 className="text-sm font-bold text-gray-900 uppercase">KẾT LUẬN & XÁC NHẬN CỦA BÁC SĨ</h3>
                                                 </div>
-                                                <div>
-                                                    <h3 className="text-xs font-bold text-gray-400 uppercase mb-2">Mã ICD-10</h3>
-                                                    <input
-                                                        type="text"
-                                                        value={soap.icd_codes}
-                                                        onChange={(e) => setSoap({ ...soap, icd_codes: e.target.value })}
-                                                        className="w-full p-3 bg-gray-50 border border-gray-100 rounded-xl text-sm font-mono outline-none focus:ring-2 focus:ring-blue-100"
-                                                        placeholder="VD: J03.9"
-                                                    />
+
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                                    <SoapEditor title="S - Subjective (Chủ quan)" value={soap.subjective} onChange={(v) => setSoap({ ...soap, subjective: v })} />
+                                                    <SoapEditor title="O - Objective (Khách quan)" value={soap.objective} onChange={(v) => setSoap({ ...soap, objective: v })} />
+                                                    <SoapEditor title="A - Assessment (Đánh giá)" value={soap.assessment} onChange={(v) => setSoap({ ...soap, assessment: v })} />
+                                                    <SoapEditor title="P - Plan (Kế hoạch)" value={soap.plan} onChange={(v) => setSoap({ ...soap, plan: v })} />
                                                 </div>
-                                            </div>
+
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                    <div>
+                                                        <h3 className="text-xs font-bold text-gray-400 uppercase mb-2">Chuẩn đoán chính thức</h3>
+                                                        <input
+                                                            type="text"
+                                                            value={soap.diagnosis}
+                                                            onChange={(e) => setSoap({ ...soap, diagnosis: e.target.value })}
+                                                            className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-100 focus:bg-white transition-all"
+                                                            placeholder="Bác sĩ nhập chuẩn đoán cuối cùng..."
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <h3 className="text-xs font-bold text-gray-400 uppercase mb-2">Mã ICD-10 chốt</h3>
+                                                        <input
+                                                            type="text"
+                                                            value={soap.icd_codes}
+                                                            onChange={(e) => setSoap({ ...soap, icd_codes: e.target.value })}
+                                                            className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-mono outline-none focus:ring-2 focus:ring-blue-100 focus:bg-white transition-all"
+                                                            placeholder="VD: K29.0..."
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </section>
 
                                             <div className="p-5 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-100 shadow-sm">
                                                 <h3 className="text-sm font-bold text-blue-800 flex items-center gap-2 mb-4">
@@ -405,14 +486,29 @@ export default function ExaminationPage({ params }: { params: Promise<{ id: stri
     );
 }
 
+function ReadOnlySoap({ title, value }: { title: string; value: string }) {
+    return (
+        <div className="p-4 bg-white/50 rounded-xl border border-blue-100/50 space-y-1">
+            <h4 className="text-[10px] font-bold text-blue-400 uppercase tracking-wider">{title}</h4>
+            <div className="text-sm text-gray-700 leading-relaxed min-h-[1.5rem]">
+                {value || <span className="text-gray-300 italic">Không có thông tin dự đoán.</span>}
+            </div>
+        </div>
+    );
+}
+
 function SoapEditor({ title, value, onChange }: { title: string; value: string; onChange: (v: string) => void }) {
     return (
         <div className="space-y-2">
-            <h3 className="text-xs font-bold text-gray-400 uppercase">{title}</h3>
+            <div className="flex justify-between items-center">
+                <h3 className="text-xs font-bold text-gray-400 uppercase">{title}</h3>
+                <span className="text-[10px] text-gray-400 italic">Có thể chỉnh sửa</span>
+            </div>
             <textarea
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
-                className="w-full h-32 p-3 bg-gray-50 border border-gray-100 rounded-xl text-sm leading-relaxed outline-none focus:ring-2 focus:ring-blue-100 transition-all resize-none"
+                className="w-full h-36 p-4 bg-white border border-gray-200 rounded-2xl text-sm leading-relaxed outline-none focus:ring-4 focus:ring-blue-50 focus:border-blue-400 transition-all shadow-sm resize-none"
+                placeholder={`Nhập ${title.split('-')[1]?.trim() || 'thông tin'}...`}
             />
         </div>
     );
@@ -431,4 +527,18 @@ function InfoItem({ icon, label, value }: { icon: React.ReactNode; label: string
     );
 }
 
+function StatusStep({ icon, label, active, current }: { icon: React.ReactNode, label: string, active: boolean, current: boolean }) {
+    return (
+        <div className="flex flex-col items-center gap-2">
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${current ? 'bg-blue-600 text-white ring-4 ring-blue-100' :
+                active ? 'bg-blue-100 text-blue-600' : 'bg-gray-50 text-gray-300'
+                }`}>
+                {current ? <Loader2 size={16} className="animate-spin" /> : icon}
+            </div>
+            <span className={`text-[10px] font-bold uppercase ${active ? 'text-blue-600' : 'text-gray-400'}`}>{label}</span>
+        </div>
+    );
+}
+
 import { Loader2 } from 'lucide-react';
+

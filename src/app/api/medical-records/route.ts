@@ -22,12 +22,17 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Missing booking_id' }, { status: 400 });
         }
 
+        // Parse ICD-10 codes from string to array if necessary
+        const icdArray = typeof icd_codes === 'string'
+            ? icd_codes.split(',').map(c => c.trim()).filter(Boolean)
+            : icd_codes;
+
         // 1. Save to medical_records
         const medicalRecordResult = await query(
             `INSERT INTO medical_records (
         booking_id, diagnosis, subjective, objective, assessment, plan, icd_codes, doctor_notes, status
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id`,
-            [booking_id, diagnosis, subjective, objective, assessment, plan, JSON.stringify(icd_codes), doctor_notes, 'completed']
+            [booking_id, diagnosis || 'N/A', subjective, objective, assessment, plan, JSON.stringify(icdArray), doctor_notes, 'completed']
         );
 
         const medical_record_id = medicalRecordResult.rows[0].id;
@@ -36,13 +41,14 @@ export async function POST(req: NextRequest) {
         if (match_score !== undefined) {
             await query(
                 `INSERT INTO comparison_records (
-          medical_record_id, ai_results, doctor_results, match_score, timestamp
-        ) VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP)`,
+          medical_record_id, ai_results, doctor_results, match_score, comparison, timestamp
+        ) VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP)`,
                 [
                     medical_record_id,
                     JSON.stringify(ai_results),
                     JSON.stringify({ diagnosis, subjective, objective, assessment, plan }),
-                    match_score
+                    match_score,
+                    JSON.stringify({}), // Mandatory 'comparison' field
                 ]
             );
         }
