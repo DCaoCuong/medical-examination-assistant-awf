@@ -173,7 +173,7 @@ export default function ExaminationPage({ params }: { params: Promise<{ id: stri
                 match_score: matchScore || 0
             });
             alert('Lưu hồ sơ bệnh án thành công!');
-            window.location.href = `/dashboard/patients/${id}`;
+            window.location.href = `/patients/${id}`;
         } catch (err) {
             console.error('Save failed:', err);
             alert('Lưu hồ sơ thất bại.');
@@ -191,7 +191,7 @@ export default function ExaminationPage({ params }: { params: Promise<{ id: stri
             <header className="bg-white border-b border-gray-100 px-6 py-4 sticky top-0 z-10">
                 <div className="max-w-6xl mx-auto flex justify-between items-center">
                     <div className="flex items-center gap-4">
-                        <Link href="/dashboard" className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                        <Link href="/" className="p-2 hover:bg-gray-100 rounded-full transition-colors">
                             <ArrowLeft size={20} className="text-gray-500" />
                         </Link>
                         <div>

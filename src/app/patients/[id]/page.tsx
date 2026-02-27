@@ -55,7 +55,7 @@ export default function PatientProfilePage({ params }: { params: Promise<{ id: s
             <div className="min-h-screen bg-gray-50 p-8 flex flex-col items-center justify-center gap-4">
                 <AlertTriangle size={48} className="text-orange-400" />
                 <h1 className="text-xl font-bold text-gray-900">Không tìm thấy bệnh nhân</h1>
-                <Link href="/dashboard" className="text-blue-600 hover:underline">Quay lại Dashboard</Link>
+                <Link href="/" className="text-blue-600 hover:underline">Quay lại Dashboard</Link>
             </div>
         );
     }
@@ -66,13 +66,13 @@ export default function PatientProfilePage({ params }: { params: Promise<{ id: s
             <header className="bg-white border-b border-gray-100 sticky top-0 z-20 shadow-sm print:hidden">
                 <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                        <Link href="/dashboard" className="p-2 hover:bg-gray-50 rounded-lg transition-colors text-gray-500">
+                        <Link href="/" className="p-2 hover:bg-gray-50 rounded-lg transition-colors text-gray-500">
                             <ChevronLeft size={20} />
                         </Link>
                         <h1 className="text-lg font-bold text-gray-900">Chi tiết Hồ sơ Bệnh nhân</h1>
                     </div>
                     <Link
-                        href={`/dashboard/examination/${patient.id}`}
+                        href={`/examination/${patient.id}`}
                         className="px-5 py-2 bg-blue-600 text-white text-sm font-bold rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-100 flex items-center gap-2"
                     >
                         <Stethoscope size={16} /> Bắt đầu khám mới
