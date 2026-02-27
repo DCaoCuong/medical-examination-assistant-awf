@@ -1,26 +1,50 @@
 import axios from 'axios';
 
+/**
+ * 🧑‍ Sơ đồ bảng 'users' trong ERD (đóng vai trò Bệnh nhân)
+ */
 export interface Patient {
     id: string;
-    full_name: string;
-    date_of_birth?: string;
+    name: string;
+    phone?: string;
+    birth_date?: string;
     gender?: string;
-    phone_number?: string;
-    created_at: string;
+    medical_history?: string;
+    allergies?: string;
+    blood_type?: string;
 }
 
-export interface Visit {
+/**
+ * 📅 Sơ đồ bảng 'bookings' (đóng vai trò Phiên khám)
+ */
+export interface Booking {
     id: string;
-    patient_id: string;
-    visit_date: string;
-    reason?: string;
-    status: 'pending' | 'in_progress' | 'completed';
-    soap_notes?: any;
+    user_id: string;
+    doctor_id: string;
+    status: string;
+    booking_time: string;
+    symptoms?: string;
+}
+
+/**
+ * 📝 Sơ đồ bảng 'medical_records' (Lưu ghi chú SOAP & ICD-10)
+ */
+export interface MedicalRecord {
+    id: string;
+    booking_id: string;
+    subjective?: string;
+    objective?: string;
+    assessment?: string;
+    plan?: string;
+    diagnosis?: string;
+    prescription?: string;
+    icd_codes?: any;
+    doctor_notes?: string;
 }
 
 export const patientService = {
     /**
-     * Fetch list of all patients via internal API
+     * Lấy danh sách bệnh nhân (từ bảng users với role = 'patient')
      */
     async getAllPatients() {
         const response = await axios.get('/api/patients');
@@ -28,7 +52,7 @@ export const patientService = {
     },
 
     /**
-     * Get patient by ID (To be implemented in API if needed)
+     * Lấy thông tin chi tiết bệnh nhân
      */
     async getPatientById(id: string) {
         const response = await axios.get(`/api/patients/${id}`);
@@ -36,18 +60,18 @@ export const patientService = {
     },
 
     /**
-     * Get current examination session
+     * Lấy lịch sử khám của bệnh nhân
      */
-    async getCurrentVisit(visitId: string) {
-        const response = await axios.get(`/api/visits/${visitId}`);
-        return response.data;
+    async getPatientBookings(userId: string) {
+        const response = await axios.get(`/api/patients/${userId}/bookings`);
+        return response.data as Booking[];
     },
 
     /**
-     * Update visits with SOAP notes
+     * Lưu kết quả SOAP vào bảng medical_records
      */
-    async updateVisitNotes(visitId: string, payload: any) {
-        const response = await axios.post(`/api/visits/${visitId}`, payload);
+    async saveMedicalRecord(record: Partial<MedicalRecord>) {
+        const response = await axios.post('/api/medical-records', record);
         return response.data;
     }
 };

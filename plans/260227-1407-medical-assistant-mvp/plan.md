@@ -17,10 +17,10 @@ Hệ thống hỗ trợ bác sĩ ghi âm, chuyển văn bản (Whisper), phân t
 | Phase | Name | Status | Progress |
 |-------|------|--------|----------|
 | 01 | Setup Environment | ✅ Complete | 100% |
-| 02 | Supabase & Data Integration | ✅ Complete | 100% |
-| 03 | Core AI Services (Groq & Google) | ⬜ Pending | 0% |
-| 04 | Recording & Dashboard UI | ⬜ Pending | 0% |
-| 05 | SOAP Analysis & Matching Engine | ⬜ Pending | 0% |
+| 02 | Database & Data Integration | ✅ Complete | 100% |
+| 03 | Core AI Services (Groq & Google) | ✅ Complete | 100% |
+| 04 | Recording & Dashboard UI | ✅ Complete | 100% |
+| 05 | SOAP Analysis & Matching Engine | 🟡 In Progress | 0% |
 | 06 | Final Review & Testing | ⬜ Pending | 0% |
 
 ## Quick Commands

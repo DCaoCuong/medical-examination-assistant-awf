@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { patientService, Patient } from '@/services/patientService';
 import { Database, User, Activity, AlertCircle } from 'lucide-react';
+import Link from 'next/link';
 
 export default function DashboardPage() {
     const [patients, setPatients] = useState<Patient[]>([]);
@@ -15,9 +16,12 @@ export default function DashboardPage() {
                 setLoading(true);
                 const data = await patientService.getAllPatients();
                 setPatients(data);
+                setError(null);
             } catch (err: any) {
                 console.error('Failed to fetch patients:', err);
-                setError(err.message || 'Không thể kết nối với Database. Hãy kiểm tra lại API Key.');
+                const backendError = err.response?.data?.message || err.response?.data?.error;
+                const hint = err.response?.data?.hint;
+                setError(backendError ? `${backendError}${hint ? ` (${hint})` : ''}` : 'Không thể kết nối với Database. Hãy kiểm tra lại cấu hình .env.local.');
             } finally {
                 setLoading(false);
             }
@@ -83,15 +87,20 @@ export default function DashboardPage() {
                                     patients.map((patient) => (
                                         <tr key={patient.id} className="hover:bg-gray-50 transition-colors">
                                             <td className="px-6 py-4">
-                                                <div className="font-medium text-gray-900">{patient.full_name}</div>
+                                                <div className="font-medium text-gray-900">{patient.name}</div>
                                                 <div className="text-xs text-gray-400">ID: {patient.id.substring(0, 8)}</div>
                                             </td>
-                                            <td className="px-6 py-4 text-sm text-gray-600">{patient.date_of_birth || 'N/A'}</td>
-                                            <td className="px-6 py-4 text-sm text-gray-600">{patient.phone_number || 'N/A'}</td>
+                                            <td className="px-6 py-4 text-sm text-gray-600">
+                                                {patient.birth_date ? new Date(patient.birth_date).toLocaleDateString('vi-VN') : 'N/A'}
+                                            </td>
+                                            <td className="px-6 py-4 text-sm text-gray-600">{patient.phone || 'N/A'}</td>
                                             <td className="px-6 py-4">
-                                                <button className="px-4 py-1.5 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700 transition-colors">
+                                                <Link
+                                                    href={`/dashboard/examination/${patient.id}`}
+                                                    className="px-4 py-1.5 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700 transition-colors inline-block"
+                                                >
                                                     Kí khám
-                                                </button>
+                                                </Link>
                                             </td>
                                         </tr>
                                     ))
