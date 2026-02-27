@@ -1,9 +1,15 @@
-# Phase 02: Supabase & Data Integration
+# Phase 02: Database & Data Integration
+
+Status: ✅ Complete
+Dependencies: [Phase 01]
+
+## Objective
+Kết nối hệ thống với Database qua POSTGRES_URL (direct connector) và xây dựng các API routes để truy xuất dữ liệu bệnh nhân.
 
 ## Tasks:
-- [ ] Kết nối ứng dụng với database Supabase hiện có.
-- [ ] Tạo các Client SDK service để fetch dữ liệu bệnh nhân (giả lập HIS).
-- [ ] Kiểm tra quyền truy cập data (Read/Write) vào các bảng phiên khám (visits/sessions).
+- [x] Kết nối ứng dụng với database qua chuỗi POSTGRES_URL.
+- [x] Tạo các API Routes và lib/db để query trực tiếp bằng SQL.
+- [x] Xây dựng service gọi API từ phía Client để fetch dữ liệu bệnh nhân.
 
 ## Output:
-- App có thể hiển thị danh sách bệnh nhân từ Supabase.
+- App hiển thị danh sách bệnh nhân thông qua kết nối trực tiếp PostgreSQL.
