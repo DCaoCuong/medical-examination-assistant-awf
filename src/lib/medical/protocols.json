@@ -1,0 +1,38 @@
+[
+    {
+        "id": "HTN-001",
+        "name": "Tăng huyết áp vô căn",
+        "icd10": "I10",
+        "authority": "Bộ Y tế Việt Nam - Quyết định 3192/QĐ-BYT năm 2010",
+        "subjective_keys": [
+            "đau đầu",
+            "chóng mặt",
+            "hoa mắt"
+        ],
+        "plan_guidelines": "1. Thay đổi lối sống: Giảm muối (< 5g/ngày), tăng rau xanh, giảm mỡ động vật. 2. Thuốc: Lợi tiểu, Chẹn kênh Canxi (nếu cần). 3. Tái khám sau 1 tháng."
+    },
+    {
+        "id": "T2DM-001",
+        "name": "Đái tháo đường Type 2",
+        "icd10": "E11",
+        "authority": "Bộ Y tế Việt Nam - Quyết định 5481/QĐ-BYT năm 2020",
+        "subjective_keys": [
+            "khát nước",
+            "tiểu nhiều",
+            "sụt cân"
+        ],
+        "plan_guidelines": "1. Chế độ ăn: Hạn chế tinh bột đường, chia nhỏ bữa ăn. 2. Vận động: Ít nhất 30p mỗi ngày. 3. Thuốc: Metformin là lựa chọn đầu tay. 4. Theo dõi đường huyết mao mạch."
+    },
+    {
+        "id": "GAS-001",
+        "name": "Viêm dạ dày cấp tính",
+        "icd10": "K29.1",
+        "authority": "Hướng dẫn chẩn đoán và điều trị bệnh tiêu hóa - BYT",
+        "subjective_keys": [
+            "đau thượng vị",
+            "ợ hơi",
+            "buồn nôn"
+        ],
+        "plan_guidelines": "1. Kiêng đồ cay nóng, rượu bia, thuốc lá. 2. Tránh stress, ăn đúng giờ. 3. Thuốc: PPI (như Omeprazole), Antacid. 4. Nội soi nếu triệu chứng kéo dài."
+    }
+]

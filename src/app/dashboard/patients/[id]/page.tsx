@@ -63,7 +63,7 @@ export default function PatientProfilePage({ params }: { params: Promise<{ id: s
     return (
         <div className="min-h-screen bg-gray-50 pb-20">
             {/* Header */}
-            <header className="bg-white border-b border-gray-100 sticky top-0 z-20 shadow-sm">
+            <header className="bg-white border-b border-gray-100 sticky top-0 z-20 shadow-sm print:hidden">
                 <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
                     <div className="flex items-center gap-4">
                         <Link href="/dashboard" className="p-2 hover:bg-gray-50 rounded-lg transition-colors text-gray-500">
@@ -82,7 +82,7 @@ export default function PatientProfilePage({ params }: { params: Promise<{ id: s
 
             <main className="max-w-7xl mx-auto p-6 grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* Left: Patient Info & Timeline */}
-                <div className="lg:col-span-4 space-y-6">
+                <div className="lg:col-span-4 space-y-6 print:hidden">
                     <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 overflow-hidden relative">
                         <div className="absolute top-0 left-0 w-full h-2 bg-blue-600"></div>
                         <div className="flex flex-col items-center mb-8 pt-4">
@@ -170,7 +170,7 @@ export default function PatientProfilePage({ params }: { params: Promise<{ id: s
                 <div className="lg:col-span-8 space-y-6">
                     {/* Multi-Visit Insights (Only if > 1 visit) */}
                     {history.length > 1 && (
-                        <div className="bg-gradient-to-br from-gray-900 to-blue-900 rounded-[2.5rem] p-8 text-white shadow-2xl relative overflow-hidden">
+                        <div className="bg-gradient-to-br from-gray-900 to-blue-900 rounded-[2.5rem] p-8 text-white shadow-2xl relative overflow-hidden print:hidden">
                             <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-20 -mt-20 blur-3xl" />
                             <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-8">
                                 <div>
@@ -292,11 +292,17 @@ export default function PatientProfilePage({ params }: { params: Promise<{ id: s
                                         <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
                                         <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest">Hồ sơ đã được mã hóa bảo mật</p>
                                     </div>
-                                    <div className="flex gap-4">
-                                        <button className="px-5 py-2 hover:bg-white hover:shadow-md transition-all rounded-xl text-sm font-bold text-gray-600 flex items-center gap-2">
+                                    <div className="flex gap-4 print:hidden">
+                                        <button
+                                            onClick={() => window.print()}
+                                            className="px-5 py-2 hover:bg-white hover:shadow-md transition-all rounded-xl text-sm font-bold text-gray-600 flex items-center gap-2"
+                                        >
                                             <FileText size={16} /> Print
                                         </button>
-                                        <button className="px-6 py-2 bg-gray-900 text-white rounded-xl text-sm font-bold hover:bg-black transition-all shadow-lg shadow-gray-200 flex items-center gap-2">
+                                        <button
+                                            onClick={() => window.print()}
+                                            className="px-6 py-2 bg-gray-900 text-white rounded-xl text-sm font-bold hover:bg-black transition-all shadow-lg shadow-gray-200 flex items-center gap-2"
+                                        >
                                             Xuất Bệnh Án (PDF)
                                         </button>
                                     </div>

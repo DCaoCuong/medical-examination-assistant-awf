@@ -96,30 +96,19 @@ export default function ExaminationPage({ params }: { params: Promise<{ id: stri
                 context: `Bệnh nhân: ${patient?.name}, Tiền sử: ${patient?.medical_history || 'Không'}`
             });
 
-            let rawAnalysis = analysisResponse.data.analysis;
-            let parsed: any = {};
-            try {
-                const jsonMatch = rawAnalysis.match(/\{[\s\S]*\}/);
-                if (jsonMatch) {
-                    parsed = JSON.parse(jsonMatch[0]);
-                } else {
-                    parsed = { subjective: rawAnalysis };
-                }
-            } catch (e) {
-                parsed = { subjective: rawAnalysis };
-            }
+            const parsed = analysisResponse.data.analysis;
 
             setAnalysis(parsed);
             setAdvice(parsed.medical_advice || '');
             setRisk(parsed.risk_assessment || '');
 
             setSoap({
-                subjective: parsed.subjective || parsed.S || '',
-                objective: parsed.objective || parsed.O || '',
-                assessment: parsed.assessment || parsed.A || '',
-                plan: parsed.plan || parsed.P || '',
+                subjective: parsed.subjective || 'Chưa rõ',
+                objective: parsed.objective || 'Chưa khám',
+                assessment: parsed.assessment || 'Đang đánh giá',
+                plan: parsed.plan || 'Chờ phác đồ',
                 diagnosis: parsed.diagnosis || '',
-                icd_codes: parsed.icd_codes || ''
+                icd_codes: Array.isArray(parsed.icd_codes) ? parsed.icd_codes.join(', ') : (parsed.icd_codes || '')
             });
 
             setStep(2);
@@ -376,11 +365,23 @@ export default function ExaminationPage({ params }: { params: Promise<{ id: stri
                                                         <h3 className="text-sm font-bold text-blue-900">BẢN TÓM TẮT GỢI Ý (AI)</h3>
                                                     </div>
 
+                                                    {analysis.protocol_source && (
+                                                        <div className="mb-6 p-4 bg-indigo-900 text-white rounded-2xl shadow-lg relative overflow-hidden group">
+                                                            <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:scale-110 transition-transform">
+                                                                <FileText size={40} />
+                                                            </div>
+                                                            <div className="relative z-10">
+                                                                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-300 mb-1">Căn cứ Phác đồ điều trị chính thống</p>
+                                                                <p className="text-sm font-bold leading-relaxed">{analysis.protocol_source}</p>
+                                                            </div>
+                                                        </div>
+                                                    )}
+
                                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                                                        <ReadOnlySoap title="S - Subjective" value={analysis.subjective || analysis.S} />
-                                                        <ReadOnlySoap title="O - Objective" value={analysis.objective || analysis.O} />
-                                                        <ReadOnlySoap title="A - Assessment" value={analysis.assessment || analysis.A} />
-                                                        <ReadOnlySoap title="P - Plan" value={analysis.plan || analysis.P} />
+                                                        <ReadOnlySoap title="S - Subjective" value={analysis.subjective} />
+                                                        <ReadOnlySoap title="O - Objective" value={analysis.objective} />
+                                                        <ReadOnlySoap title="A - Assessment" value={analysis.assessment} />
+                                                        <ReadOnlySoap title="P - Plan (Dựa trên Phác đồ)" value={analysis.plan} />
                                                     </div>
 
                                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

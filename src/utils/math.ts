@@ -31,5 +31,11 @@ export function cosineSimilarity(vecA: number[], vecB: number[]): number {
  * Chuyển số thập phân sang phần trăm làm tròn
  */
 export function formatAsPercentage(value: number): string {
-    return (value * 100).toFixed(1) + "%";
+    // Handle both 0-1 and 0-100 ranges gracefully
+    let percentage = (value > 1) ? value : value * 100;
+
+    // Ensure it stays within 0-100%
+    percentage = Math.max(0, Math.min(100, percentage));
+
+    return percentage.toFixed(1) + "%";
 }

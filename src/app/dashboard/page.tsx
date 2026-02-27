@@ -12,7 +12,8 @@ export default function DashboardPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    const [stats, setStats] = useState({ totalPatients: 0, todaySessions: 0, avgMatchScore: 0 });
+    const [stats, setStats] = useState({ totalPatients: 0, todaySessions: 0, weekSessions: 0, avgMatchScore: 0 });
+    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
         async function loadData() {
@@ -38,17 +39,35 @@ export default function DashboardPage() {
         loadData();
     }, []);
 
+    const filteredPatients = patients.filter(p =>
+        p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (p.phone && p.phone.includes(searchTerm))
+    );
+
     return (
         <div className="min-h-screen bg-gray-50 p-6">
             <div className="max-w-6xl mx-auto">
-                <header className="mb-8 flex justify-between items-center">
+                <header className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <div>
                         <h1 className="text-3xl font-bold text-gray-900">Bảng điều khiển Bác sĩ</h1>
                         <p className="text-gray-500">Quản lý danh sách bệnh nhân và phiên khám</p>
                     </div>
-                    <div className="bg-white p-2 rounded-lg shadow-sm flex items-center gap-2 border border-gray-100">
-                        <Database size={18} className={error ? "text-red-500" : "text-green-500"} />
-                        <span className="text-sm font-medium">{error ? "Chưa kết nối DB" : "DB Sẵn sàng"}</span>
+
+                    <div className="flex items-center gap-4 w-full md:w-auto">
+                        <div className="relative flex-1 md:w-64">
+                            <Activity className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                            <input
+                                type="text"
+                                placeholder="Tìm tên hoặc SĐT..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-100 outline-none transition-all shadow-sm"
+                            />
+                        </div>
+                        <div className="bg-white p-2 px-3 rounded-lg shadow-sm flex items-center gap-2 border border-gray-100">
+                            <Database size={18} className={error ? "text-red-500" : "text-green-500"} />
+                            <span className="text-sm font-medium">{error ? "Chưa kết nối DB" : "DB Sẵn sàng"}</span>
+                        </div>
                     </div>
                 </header>
 
@@ -59,16 +78,19 @@ export default function DashboardPage() {
                     </div>
                 )}
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                     <StatCard title="Tổng bệnh nhân" value={stats.totalPatients.toString()} icon={<User className="text-blue-500" />} />
-                    <StatCard title="Phiên khám hôm nay" value={stats.todaySessions.toString()} icon={<Activity className="text-green-500" />} />
+                    <StatCard title="Ca khám (Tuần)" value={stats.weekSessions.toString()} icon={<Activity className="text-green-500" />} />
+                    <StatCard title="Hôm nay" value={stats.todaySessions.toString()} icon={<Activity className="text-purple-500" />} />
                     <StatCard title="Độ khớp AI (với BS)" value={stats.avgMatchScore > 0 ? formatAsPercentage(stats.avgMatchScore) : "-- %"} icon={<AlertCircle className="text-orange-500" />} />
                 </div>
 
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                     <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
                         <h2 className="font-semibold text-gray-800">Danh sách bệnh nhân</h2>
-                        <button className="text-sm text-blue-600 font-medium hover:underline">Xem tất cả</button>
+                        {searchTerm && (
+                            <span className="text-xs text-gray-400">Đang lọc {filteredPatients.length} kết quả</span>
+                        )}
                     </div>
 
                     <div className="overflow-x-auto">
@@ -91,8 +113,8 @@ export default function DashboardPage() {
                                             <td className="px-6 py-4"><div className="h-8 bg-gray-200 rounded w-20"></div></td>
                                         </tr>
                                     ))
-                                ) : patients.length > 0 ? (
-                                    patients.map((patient) => (
+                                ) : filteredPatients.length > 0 ? (
+                                    filteredPatients.map((patient) => (
                                         <tr key={patient.id} className="hover:bg-gray-50 transition-colors">
                                             <td className="px-6 py-4">
                                                 <div className="font-medium text-gray-900">{patient.name}</div>
@@ -121,7 +143,7 @@ export default function DashboardPage() {
                                 ) : (
                                     <tr>
                                         <td colSpan={4} className="px-6 py-10 text-center text-gray-400">
-                                            Chưa có dữ liệu bệnh nhân.
+                                            {searchTerm ? 'Không tìm thấy bệnh nhân nào khớp.' : 'Chưa có dữ liệu bệnh nhân.'}
                                         </td>
                                     </tr>
                                 )}
